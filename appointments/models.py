@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import PatientProfile
 from doctors.models import DoctorProfile
 from  django.db.models import constraints
+import datetime
 # Create your models here.
 
 class Appointment(models.Model):
@@ -10,13 +11,21 @@ class Appointment(models.Model):
         ("completed", "Completed"),
         ("cancelled", "Cancelled")
     ]
+    time_slots = [
+        (datetime.time(11, 0), "10:00 - 10:30"),
+        (datetime.time(11, 0), "10:30 - 11:00"),
+        (datetime.time(11, 0), "11:00 - 11:30"),
+        (datetime.time(11, 0), "11:30 - 12:00"),
+        (datetime.time(11, 0), "12:00 - 12:30")
+        
+    ]
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT)
     status = models.CharField(choices=status_choices, max_length=10)
     day = models.DateField()
-    time_slot = models.TimeField()
-    created_at = models.DateTimeFieldTimeField(auto_now_add=True)
+    time_slot = models.TimeField(choices=time_slots)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = models.UniqueConstraint(fields=['doctor','day','time_slot'])
+        constraints = [models.UniqueConstraint(fields=['doctor','day','time_slot'], name = "unique_appointment")]
         

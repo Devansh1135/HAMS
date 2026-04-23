@@ -1,5 +1,7 @@
 from django.db import models
 from accounts.models import User
+from django.core.exceptions import ValidationError
+
 # Create your models here.
 
 class DoctorProfile(models.Model):
@@ -10,6 +12,12 @@ class DoctorProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     specialty = models.CharField(max_length=20)
     degree = models.CharField(max_length=10)
+    
+    def clean(self):
+        if self.user.role != 'doctor':
+                raise ValidationError("user must be a doctor!!!!")
+    def __str__(self):
+        return self.user.username 
     
 class DoctorAvailibility(models.Model):
     days = [
