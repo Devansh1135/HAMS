@@ -11,6 +11,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken , B
 User = get_user_model()
 
 class PatientSignupView(APIView):
+    permission_classes = []
     def post(self, request):
         serializer = PatientSignupSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
@@ -34,3 +35,14 @@ class PasswordChangeView(APIView):
         for token in tokens:
             BlacklistedToken.objects.get_or_create(token=token)
         return Response({"message" : "Password changed successfully!!!"})
+
+class GetUserProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        data = {
+            "username" : user.username,
+            "email" : user.email,
+            "phone" : user.phone
+        }
+        return Response(data, status=200)
