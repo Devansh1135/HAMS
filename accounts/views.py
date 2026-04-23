@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.http import request
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken , BlacklistedToken
 # Create your views here.
 
 User = get_user_model()
@@ -29,4 +30,7 @@ class PasswordChangeView(APIView):
             return Response({"error" : "Password is incorrect!!!!"}, status=400)
         user.set_password(new_password)
         user.save()
+        tokens = OutstandingToken.objects.filter(user = user)
+        for token in tokens:
+            BlacklistedToken.objects.get_or_create(token=token)
         return Response({"message" : "Password changed successfully!!!"})
