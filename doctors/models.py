@@ -1,7 +1,6 @@
 from django.db import models
 from accounts.models import User
 from django.core.exceptions import ValidationError
-
 # Create your models here.
 
 class DoctorProfile(models.Model):
