@@ -42,4 +42,4 @@ class LogoutView(APIView):
         tokens = OutstandingToken.objects.filter(user = user)
         for token in tokens:
             BlacklistedToken.objects.get_or_create(token=token)
-        
+         
