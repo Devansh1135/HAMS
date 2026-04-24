@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import PatientProfile
+from common.models import Role
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -14,14 +15,13 @@ class PatientSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            "password",
+            "email",
+            "phone",
             "sex",
             "age",
             "weight",
-            "username",
-            "password",
-            "email",
-            "role",
-            "phone",
+            
         ]
 
     def create(self, validated_data):
@@ -30,10 +30,11 @@ class PatientSignupSerializer(serializers.ModelSerializer):
         print(sex)
         age = validated_data.pop("age")
         weight = validated_data.pop("weight")
-
+        print(validated_data)
         # creating User object
         password = validated_data.pop("password")
-        user = User(**validated_data)
+        role = Role.objects.get(name='patient')
+        user = User(role=role, **validated_data)
         user.set_password(password)
         user.save()
 

@@ -36,6 +36,14 @@ class PasswordChangeView(APIView):
             BlacklistedToken.objects.get_or_create(token=token)
         return Response({"message" : "Password changed successfully!!!"})
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        user = request.user
+        tokens = OutstandingToken.objects.filter(user = user)
+        for token in tokens:
+            BlacklistedToken.objects.get_or_create(token=token)
+        
 class GetUserProfile(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
