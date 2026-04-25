@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import DoctorProfile, User
 from common.models import Role
+from common.serializers import UserSerializer
 
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
@@ -64,6 +65,31 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         return user
 
 class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only = True)
+    username = serializers.CharField(write_only=True, required=False)
+    email = serializers.EmailField(write_only=True, required=False)
+    phone = serializers.CharField(write_only=True, required=False)
     class Meta:
         model = DoctorProfile
         fields = "__all__"
+        extra_kwargs = {
+            'user': {'read_only': True}
+        }
+
+    def update(self, instance, validated_data):
+        username = validated_data.pop('username', None)
+        email = validated_data.pop('email', None)
+        phone = validated_data.pop('phone', None)
+        instance = super().update(instance, validated_data)
+        user = instance.user
+        if username:
+            user.username = username
+        if email:
+            user.email = email
+        if phone:
+            user.phone = phone
+        user.save()
+        return instance
+
+
+    

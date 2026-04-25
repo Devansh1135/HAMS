@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import PatientProfile
 from common.models import Role
+from common.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -15,6 +16,7 @@ class PatientSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            "username",
             "password",
             "email",
             "phone",
@@ -41,3 +43,10 @@ class PatientSignupSerializer(serializers.ModelSerializer):
         # creating Patient Profile
         PatientProfile.objects.create(user=user, sex=sex, weight=weight, age=age)
         return user
+
+class PatientProfileSerializer(serializers.ModelSerializer):
+    
+    user = UserSerializer()
+    class Meta:
+        model = PatientProfile
+        fields = '__all__'

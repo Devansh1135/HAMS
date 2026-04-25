@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import generics
-from .models import DoctorProfile
+from .models import DoctorProfile, User
 from .serializers import DoctorProfileSerializer, DoctorProfileRetrieveSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
@@ -38,4 +38,6 @@ class DoctorProfileRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIVie
     def delete(self, request, *args, **kwargs):
         self.destroy(request, *args, **kwargs)
         return Response({"message" : "Doctor succesfully deleted"}, status=204)
+    
+    
     
