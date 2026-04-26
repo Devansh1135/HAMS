@@ -5,23 +5,31 @@ from rest_framework.response import Response
 from django.http import request
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken , BlacklistedToken
+from rest_framework_simplejwt.token_blacklist.models import (
+    OutstandingToken,
+    BlacklistedToken,
+)
 from rest_framework import generics
 from .models import PatientProfile
+
 # Create your views here.
 
 User = get_user_model()
 
+
 class PatientSignupView(APIView):
     permission_classes = []
+
     def post(self, request):
-        serializer = PatientSignupSerializer(data = request.data)
+        serializer = PatientSignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-    
+
+
 class PasswordChangeView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         user = request.user
         old_password = request.data.get("old_password")
@@ -30,38 +38,31 @@ class PasswordChangeView(APIView):
         # if new_password != confirm_password:
         #     return Response({"error" : "Confirm password does not match!!!!"}, status=400)
         if not user.check_password(old_password):
-            return Response({"error" : "Password is incorrect!!!!"}, status=400)
+            return Response({"error": "Password is incorrect!!!!"}, status=400)
         user.set_password(new_password)
         user.save()
-        tokens = OutstandingToken.objects.filter(user = user)
+        tokens = OutstandingToken.objects.filter(user=user)
         for token in tokens:
             BlacklistedToken.objects.get_or_create(token=token)
-        return Response({"message" : "Password changed successfully!!!"})
+        return Response({"message": "Password changed successfully!!!"})
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         user = request.user
-        tokens = OutstandingToken.objects.filter(user = user)
+        tokens = OutstandingToken.objects.filter(user=user)
         for token in tokens:
             BlacklistedToken.objects.get_or_create(token=token)
-        
-# class GetUserProfile(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def get(self, request):
-#         user = request.user
-#         data = {
-#             "username" : user.username,
-#             "email" : user.email,
-#             "phone" : user.phone
-#         }
-#         return Response(data, status=200)
 
 
 class GetUserProfile(generics.RetrieveAPIView):
     queryset = PatientProfile.objects.all()
     serializer_class = PatientProfileSerializer
+
     def get_permissions(self):
         return [IsAuthenticated()]
+
     def get_object(self):
-        return PatientProfile.objects.get(user = self.request.user)
+        return PatientProfile.objects.get(user=self.request.user)

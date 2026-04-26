@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DoctorProfile, User
+from .models import DoctorProfile, User, DoctorAvailibility
 from common.models import Role
 from common.serializers import UserSerializer
 
@@ -91,5 +91,11 @@ class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
         user.save()
         return instance
 
+class DoctorAvalibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorAvailibility
+        fields = '__all__'
+    
+    
 
     
