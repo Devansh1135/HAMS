@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DoctorProfile, User, DoctorAvailibility
+from .models import DoctorProfile, User, DoctorAvailibility, BlockedSlot
 from common.models import Role
 from common.serializers import UserSerializer
 
@@ -91,11 +91,21 @@ class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
         user.save()
         return instance
 
-class DoctorAvalibilitySerializer(serializers.ModelSerializer):
+class DoctorAvalibilityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorAvailibility
         fields = '__all__'
-    
-    
 
+class DoctorAvalibilityUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorAvailibility
+        fields = '__all__'
+        read_only_fields = ['doctor']
+        
+    
+class AddBlockedSlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlockedSlot
+        fields = ['blocked_date', 'start_time', 'end_time']
+    
     

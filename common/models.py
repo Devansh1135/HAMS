@@ -6,3 +6,6 @@ class Role(models.Model):
         ("doctor","Doctor")
     ]
     name = models.CharField(choices=ROLE_CHOICES,max_length=10)
+
+    def __str__(self):
+        return self.name

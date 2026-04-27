@@ -45,3 +45,9 @@ class DoctorAvailibility(models.Model):
                 fields=["doctor", "days_of_week"], name="unique_availibility"
             )
         ]
+
+class BlockedSlot(models.Model):
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name="blocked_slots")
+    blocked_date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()

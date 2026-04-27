@@ -1,4 +1,4 @@
-from doctors.models import DoctorProfile, DoctorAvailibility
+from doctors.models import DoctorProfile, DoctorAvailibility, BlockedSlot
 from datetime import datetime, time
 
 
@@ -9,7 +9,6 @@ class SlotCalculationService:
         
         try:
             doctor = DoctorProfile.objects.get(id = doctor_id)
-            print(doctor)
         except DoctorProfile.DoesNotExist:
             raise ValueError("Doctor not found")
         
@@ -17,7 +16,6 @@ class SlotCalculationService:
             raise ValueError("Appointment date must be in the future")
         
         day_of_week = appointment_date.weekday()
-        print(day_of_week)
         try:
             from doctors.models import DoctorAvailibility
             availability = DoctorAvailibility.objects.get(
@@ -33,21 +31,33 @@ class SlotCalculationService:
             str(availability.time_in), str(availability.time_out), availability.slot_duration
         )
 
-        return slots
+        blocked_slots = BlockedSlot.objects.filter(doctor = doctor_id, blocked_date = appointment_date)
+
+        available_slots= []
+
+        for slot in slots:  
+            slot_start = slot['start_time']
+            slot_end = slot['end_time']
+            is_blocked = False
+            for blocked in blocked_slots:
+                if slot_start < blocked.end_time and slot_end > blocked.start_time:
+                    is_blocked = True
+            if is_blocked == False:
+                available_slots.append(slot)
+            
+
+        return available_slots
 
     @staticmethod
     def _generate_slots(time_in, time_out, slot_duration):
-        print("Is ts even being called???")
         slots = []
         current_minutes = SlotCalculationService._time_to_minutes(time_in)
         end_minutes = SlotCalculationService._time_to_minutes(time_out)
-        print(current_minutes, end_minutes, "is this thing on?")
         while current_minutes < end_minutes:
             slot_end_minutes = current_minutes + slot_duration
             if slot_end_minutes > end_minutes:
                 break
             start_time = SlotCalculationService._minutes_to_time(current_minutes)
-            print(type(start_time))
             end_time = SlotCalculationService._minutes_to_time(slot_end_minutes)
             slots.append({
                 'start_time': start_time,
@@ -59,9 +69,7 @@ class SlotCalculationService:
 
     @staticmethod
     def _time_to_minutes(time_str):
-        print("time_to_minutes called")
-        parts = time_str.split(':')
-        
+        parts = time_str.split(':')    
         hours = int(parts[0])
         minutes = int(parts[1])
         return (hours * 60) + minutes
