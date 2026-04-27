@@ -11,19 +11,11 @@ class Appointment(models.Model):
         ("completed", "Completed"),
         ("cancelled", "Cancelled")
     ]
-    time_slots = [
-        (datetime.time(11, 0), "10:00 - 10:30"),
-        (datetime.time(11, 0), "10:30 - 11:00"),
-        (datetime.time(11, 0), "11:00 - 11:30"),
-        (datetime.time(11, 0), "11:30 - 12:00"),
-        (datetime.time(11, 0), "12:00 - 12:30")
-        
-    ]
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT)
     status = models.CharField(choices=status_choices, max_length=10)
     day = models.DateField()
-    time_slot = models.TimeField(choices=time_slots)
+    time_slot = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
