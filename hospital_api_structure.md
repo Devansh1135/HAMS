@@ -54,8 +54,8 @@
 ### Phase 7: Appointment Booking & Management
 **Status**: ⏳ Pending
 **Priority**: CRITICAL
-- [ ] `POST /api/appointments/` - Book appointment (Patient only)
-- [ ] `GET /api/appointments/` - List appointments (Patient sees own, Doctor sees their appointments)
+- [ ] `POST /api/appointments/` - Book appointment (Patient only) -- done
+- [ ] `GET /api/appointments/` - List appointments (Patient sees own, Doctor sees their appointments) -- done
 - [ ] `GET /api/appointments/<id>/` - Get appointment details
 - [ ] `PUT /api/appointments/<id>/` - Update appointment (cancel, reschedule, etc.)
 - [ ] `DELETE /api/appointments/<id>/` - Cancel appointment

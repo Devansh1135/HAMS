@@ -2,11 +2,16 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .models import Appointment
-from .serializers import AppointmentListCreateSerializer
+from .serializers import AppointmentListCreateSerializer, AppointmentRetrieveUpdateDeleteSerializer
+from datetime import datetime
+from common.permissions import IsDoctor
+from django.shortcuts import get_object_or_404
 # Create your views here.
+
 
 class AppointmentListCreateView(generics.ListCreateAPIView):
     serializer_class = AppointmentListCreateSerializer
+
     def get_permissions(self):
         return [IsAuthenticated()]
 
@@ -15,8 +20,18 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
         id = user.id
         role = user.role.name
         if role == "patient":
-            return Appointment.objects.filter(patient = id)
+            print(role,id)
+            return Appointment.objects.filter(patient=user.patient_profile)
         elif role == "doctor":
-            return Appointment.objects.filter(doctor = id)
+            return Appointment.objects.filter(doctor=user.doctor_profile)
+
+    def perform_create(self, serializer):
+        patient = self.request.user.patient_profile
+        serializer.save(patient=patient)
         
-        
+class AppointmentRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsDoctor]
+    serializer_class = AppointmentRetrieveUpdateDeleteSerializer
+    permission_classes = [IsDoctor]
+    queryset = Appointment.objects.all()
+

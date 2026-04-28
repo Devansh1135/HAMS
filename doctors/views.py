@@ -2,12 +2,13 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import generics
 from .models import DoctorProfile, User, DoctorAvailibility, BlockedSlot
-from .serializers import DoctorProfileSerializer, DoctorProfileRetrieveSerializer, DoctorAvalibilityCreateSerializer, DoctorAvalibilityUpdateSerializer, AddBlockedSlotSerializer
+from .serializers import DoctorProfileSerializer, DoctorProfileRetrieveSerializer,DoctorProfileUpdateSerializer, DoctorAvalibilityCreateSerializer, DoctorAvalibilityUpdateSerializer, AddBlockedSlotSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, get_list_or_404
 from datetime import datetime
 from doctors.services import SlotCalculationService
+from common.permissions import IsPatient, IsDoctor
 
 # Create your views here.
 
@@ -25,7 +26,7 @@ class DoctorProfileListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
-class DoctorProfileRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+class DoctorProfileRetrieveDeleteView(generics.RetrieveUpdateDestroyAPIView):
     
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileRetrieveSerializer
@@ -43,12 +44,19 @@ class DoctorProfileRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIVie
         self.destroy(request, *args, **kwargs)
         return Response({"message" : "Doctor succesfully deleted"}, status=204)
     
-    
+class DoctorProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = DoctorProfileUpdateSerializer
+    permission_classes = [IsDoctor]
+
+    def get_object(self):
+        return self.request.user.doctor_profile
+
+
 class DoctorAvalibilityCreateRetrieveView(generics.ListCreateAPIView):
     serializer_class = DoctorAvalibilityCreateSerializer
     def get_permissions(self):
         if self.request.method == "POST":
-            return [IsAdminUser()]
+            return [IsDoctor()]
         return [AllowAny()]
     def get_queryset(self):
         return get_list_or_404(DoctorAvailibility, doctor = self.kwargs['pk'])
@@ -58,18 +66,15 @@ class DoctorAvailibilityUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
     def get_permissions(self):
         if self.request.method == "GET":
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsDoctor()]
     def get_object(self):
         return get_object_or_404(DoctorAvailibility, doctor = self.kwargs['pk'], id = self.kwargs['avail_id'])
     
 class AvailableSlotsView(generics.ListAPIView):
-    permission_classes = [AllowAny] 
+    permission_classes = [IsAuthenticated] 
     def list(self, request, *args, **kwargs):
-        print("=== DEBUG: View called ===")
         doctor_id = self.kwargs.get('pk')
-        print(f"Doctor ID from URL: {doctor_id}, Type: {type(doctor_id)}")
         date_str = request.query_params.get('date')
-        print(f"Date string from query params: {date_str}")
         if not date_str:
             return Response(
                 {
@@ -102,22 +107,17 @@ class AvailableSlotsView(generics.ListAPIView):
 
 class AddBlockedSlot(generics.ListCreateAPIView):
     serializer_class = AddBlockedSlotSerializer
+    permission_classes = [IsDoctor]
     def get_queryset(self):
         return BlockedSlot.objects.filter(doctor= self.kwargs['pk'])
-    
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [AllowAny()]
     
     def perform_create(self, serializer):
         doctor_id = self.kwargs['pk']
         doctor = get_object_or_404(DoctorProfile, id= doctor_id)
-        print(type(doctor))
         serializer.save(doctor= doctor)
 
 class UnblockSlot(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsDoctor]
     def delete(self, request, *args, **kwargs):
         slot_id = self.kwargs['slot_id']
         BlockedSlot.objects.get(id=slot_id).delete()

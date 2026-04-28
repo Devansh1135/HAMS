@@ -44,7 +44,7 @@ class PatientProfile(models.Model):
     sex = models.CharField(choices=[("male", "M"), ("female", "F")], max_length=10)
     weight = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-    age = models.IntegerField()
+    DOB = models.DateField()
 
     def __str__(self):
         return self.user.username

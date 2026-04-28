@@ -7,7 +7,7 @@ from django.db.models import constants
 
 
 class DoctorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
     firstname = models.CharField(max_length=20)
     lastname = models.CharField(max_length=20)
     sex = models.CharField(choices=[("M", "male"), ("F", "female")], max_length=10)

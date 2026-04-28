@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import DoctorProfile, User, DoctorAvailibility, BlockedSlot
 from common.models import Role
 from common.serializers import UserSerializer
+import re
+from rest_framework.exceptions import ValidationError
 
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
@@ -41,7 +43,13 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             }
         return super().to_representation(instance)
 
-
+    def validate_password(self,password):
+        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$'
+        if re.fullmatch(pattern,password):
+            return password
+        raise ValidationError({
+            "message" : "Password must contain Atleast 1 Uppercase character , 1 lowercase character , 1 digit and 1 special character"
+        })
     def create(self, validated_data):
         firstname = validated_data.pop("firstname")
         lastname = validated_data.pop("lastname")
@@ -76,20 +84,21 @@ class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
             'user': {'read_only': True}
         }
 
+class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = DoctorProfile
+        fields = "__all__"
+        
     def update(self, instance, validated_data):
-        username = validated_data.pop('username', None)
-        email = validated_data.pop('email', None)
-        phone = validated_data.pop('phone', None)
-        instance = super().update(instance, validated_data)
-        user = instance.user
-        if username:
-            user.username = username
-        if email:
-            user.email = email
-        if phone:
-            user.phone = phone
-        user.save()
-        return instance
+        user_data = validated_data.pop('user',None)
+        if user_data:
+            user = UserSerializer(
+                instance=instance.user,
+                data=user_data,
+                partial=True
+            )
+        return super().update(instance, validated_data)
 
 class DoctorAvalibilityCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -101,11 +110,10 @@ class DoctorAvalibilityUpdateSerializer(serializers.ModelSerializer):
         model = DoctorAvailibility
         fields = '__all__'
         read_only_fields = ['doctor']
-        
     
+
 class AddBlockedSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockedSlot
         fields = ['blocked_date', 'start_time', 'end_time']
-    
     

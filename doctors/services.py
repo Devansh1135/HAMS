@@ -1,5 +1,6 @@
 from doctors.models import DoctorProfile, DoctorAvailibility, BlockedSlot
 from datetime import datetime, time
+from appointments.models import Appointment
 
 
 class SlotCalculationService:
@@ -44,6 +45,11 @@ class SlotCalculationService:
                     is_blocked = True
             if is_blocked == False:
                 available_slots.append(slot)
+
+        for slot in available_slots:
+            if Appointment.objects.filter(time_slot = slot['start_time'], day=appointment_date).exists():
+                print(slot)
+                available_slots.remove(slot)
             
 
         return available_slots

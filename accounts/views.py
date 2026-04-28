@@ -4,7 +4,7 @@ from .serializers import PatientSignupSerializer, PatientProfileSerializer
 from rest_framework.response import Response
 from django.http import request
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.token_blacklist.models import (
     OutstandingToken,
     BlacklistedToken,
@@ -48,7 +48,7 @@ class PasswordChangeView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user = request.user

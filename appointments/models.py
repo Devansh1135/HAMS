@@ -19,5 +19,8 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['doctor','day','time_slot'], name = "unique_appointment")]
+        constraints = [
+        models.UniqueConstraint(fields=['doctor','day','time_slot'], name = "unique_appointment_doctor"),
+        models.UniqueConstraint(fields=['patient','day','time_slot'], name = "unique_appointment_patient")
+        ]
         
