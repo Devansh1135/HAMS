@@ -6,12 +6,13 @@ from .serializers import AppointmentListCreateSerializer, AppointmentRetrieveUpd
 from datetime import datetime
 from common.permissions import IsDoctor
 from django.shortcuts import get_object_or_404
+from common.paginators import BasePagination
 # Create your views here.
 
 
 class AppointmentListCreateView(generics.ListCreateAPIView):
     serializer_class = AppointmentListCreateSerializer
-
+    pagination_class = BasePagination
     def get_permissions(self):
         return [IsAuthenticated()]
 

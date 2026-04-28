@@ -1,5 +1,5 @@
 from django.db import models
-
+from enum import Enum
 class Role(models.Model):
     ROLE_CHOICES = [
         ("patient","Patient"),
@@ -9,3 +9,9 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class UserRole(Enum):
+    PATIENT = "patient"
+    DOCTOR = "doctor"
+    ADMIN = "admin"

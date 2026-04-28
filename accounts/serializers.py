@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import PatientProfile
-from common.models import Role
+from common.models import Role, UserRole
 from common.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 import re
@@ -48,7 +48,8 @@ class PatientSignupSerializer(serializers.ModelSerializer):
         print(validated_data)
         # creating User object
         password = validated_data.pop("password")
-        role = Role.objects.get(name='patient')
+        role_name = UserRole.PATIENT.value
+        role = Role.objects.get(name=role_name)
         user = User(role=role, **validated_data)
         user.set_password(password)
         user.save()

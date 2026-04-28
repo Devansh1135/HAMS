@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import DoctorProfile, User, DoctorAvailibility, BlockedSlot
-from common.models import Role
+from common.models import Role, UserRole
 from common.serializers import UserSerializer
 import re
 from rest_framework.exceptions import ValidationError
@@ -57,8 +57,8 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         specialty = validated_data.pop("specialty")
         degree = validated_data.pop("degree")
         password = validated_data.pop("password")
-
-        role = Role.objects.get(name="doctor")
+        role_name = UserRole.DOCTOR.value
+        role = Role.objects.get(name=role_name)
         user = User(role=role, **validated_data)
         user.set_password(password)
         user.save()
@@ -85,20 +85,10 @@ class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
         }
 
 class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
     class Meta:
         model = DoctorProfile
-        fields = "__all__"
+        fields = ['firstname','lastname','sex','specialty','degree']
         
-    def update(self, instance, validated_data):
-        user_data = validated_data.pop('user',None)
-        if user_data:
-            user = UserSerializer(
-                instance=instance.user,
-                data=user_data,
-                partial=True
-            )
-        return super().update(instance, validated_data)
 
 class DoctorAvalibilityCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -109,8 +99,7 @@ class DoctorAvalibilityUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorAvailibility
         fields = '__all__'
-        read_only_fields = ['doctor']
-    
+        read_only_fields = ['doctor','days_of_week']
 
 class AddBlockedSlotSerializer(serializers.ModelSerializer):
     class Meta:

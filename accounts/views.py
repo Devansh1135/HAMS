@@ -11,6 +11,7 @@ from rest_framework_simplejwt.token_blacklist.models import (
 )
 from rest_framework import generics
 from .models import PatientProfile
+from common.paginators import BasePagination
 
 # Create your views here.
 

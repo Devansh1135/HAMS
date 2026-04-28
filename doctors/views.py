@@ -9,11 +9,15 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from datetime import datetime
 from doctors.services import SlotCalculationService
 from common.permissions import IsPatient, IsDoctor
-
+from django.db.models import ProtectedError
+from common.paginators import BasePagination
+from common.filters import DoctorFilter
 # Create your views here.
 
 class DoctorProfileListCreateView(generics.ListCreateAPIView):
     serializer_class = DoctorProfileSerializer
+    pagination_class = BasePagination
+    filter_backends = [DoctorFilter]
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsAdminUser()]
@@ -30,7 +34,7 @@ class DoctorProfileRetrieveDeleteView(generics.RetrieveUpdateDestroyAPIView):
     
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileRetrieveSerializer
-   
+
     def perform_destroy(self, instance):
         instance.user.delete()
         
@@ -40,9 +44,17 @@ class DoctorProfileRetrieveDeleteView(generics.RetrieveUpdateDestroyAPIView):
         else:
             return [IsAdminUser()]
     
-    def delete(self, request, *args, **kwargs):
-        self.destroy(request, *args, **kwargs)
-        return Response({"message" : "Doctor succesfully deleted"}, status=204)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response({
+                "message" : "Doctor succesfully deleted"
+            },status = 204)
+        except ProtectedError:
+            return Response({
+                "error" : "Cannot delete doctor as appointments exist"
+            })
     
 class DoctorProfileUpdateView(generics.UpdateAPIView):
     serializer_class = DoctorProfileUpdateSerializer
@@ -54,6 +66,8 @@ class DoctorProfileUpdateView(generics.UpdateAPIView):
 
 class DoctorAvalibilityCreateRetrieveView(generics.ListCreateAPIView):
     serializer_class = DoctorAvalibilityCreateSerializer
+    pagination_class = BasePagination
+    
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsDoctor()]
@@ -72,6 +86,7 @@ class DoctorAvailibilityUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
     
 class AvailableSlotsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated] 
+    pagination_class = BasePagination
     def list(self, request, *args, **kwargs):
         doctor_id = self.kwargs.get('pk')
         date_str = request.query_params.get('date')
