@@ -7,6 +7,7 @@ from datetime import datetime
 from common.permissions import IsDoctor
 from django.shortcuts import get_object_or_404
 from common.paginators import BasePagination
+from .tasks import send_appointment_confirmation_mail
 # Create your views here.
 
 
@@ -28,7 +29,8 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         patient = self.request.user.patient_profile
-        serializer.save(patient=patient)
+        appointment = serializer.save(patient=patient)
+        send_appointment_confirmation_mail.delay(appointment.id)
         
 class AppointmentRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsDoctor]
