@@ -1,0 +1,44 @@
+<!-- appointments/templates/appointment_confirmation.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Appointment Confirmation</h1>
+    
+    <p>Hi {{ patient_name }},</p>
+    
+    <p>Your appointment has been successfully booked!</p>
+    
+    <table>
+        <tr>
+            <th>Detail</th>
+            <th>Information</th>
+        </tr>
+        <tr>
+            <td>Doctor</td>
+            <td>{{ doctor_name }}</td>
+        </tr>
+        <tr>
+            <td>Date</td>
+            <td>{{ appointment_date }}</td>
+        </tr>
+        <tr>
+            <td>Time</td>
+            <td>{{ appointment_time }}</td>
+        </tr>
+    </table>
+    
+    <p>If you need to cancel or reschedule, please visit your appointment dashboard.</p>
+    
+    <p>Thank you!</p>
+    <p>Hospital Management Team</p>
+</body>
+</html>

@@ -19,28 +19,15 @@ def send_appointment_confirmation_mail(appointment_id):
         'appointment_time': appointment.time_slot
     }
 
-    html_message = render_to_string('appointment_confirmation.html', context)
+    html_message = render_to_string('appointments/appointment_confirmation.html', context)
     plain_message = strip_tags(html_message)
 
-    message = f"""
-    Appointment Confirmation
-    
-    Hi {appointment.patient.user.first_name},
-    
-    Your appointment has been booked!
-    
-    Doctor: Dr. {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
-    Date: {appointment.day.strftime('%d-%m-%Y')}
-    Time: {appointment.time_slot.strftime('%H:%M')}
-    Reason: {appointment.reason}
-    
-    Thank you!
-    """
 
     try:
         send_mail(
             subject='Appointment Confirmation',
-            message=message,
+            message=plain_message,
+            html_message=html_message,
             from_email='devanshjagatiya1135@gmail.com',
             recipient_list=[appointment.patient.user.email],
             fail_silently=False,
