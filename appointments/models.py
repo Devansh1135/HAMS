@@ -1,15 +1,17 @@
 from django.db import models
 from accounts.models import PatientProfile
 from doctors.models import DoctorProfile
-from  django.db.models import constraints
+from django.db.models import constraints
 import datetime
+
 # Create your models here.
+
 
 class Appointment(models.Model):
     status_choices = [
         ("booked", "Booked"),
         ("completed", "Completed"),
-        ("cancelled", "Cancelled")
+        ("cancelled", "Cancelled"),
     ]
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT)
@@ -20,7 +22,11 @@ class Appointment(models.Model):
 
     class Meta:
         constraints = [
-        models.UniqueConstraint(fields=['doctor','day','time_slot'], name = "unique_appointment_doctor"),
-        models.UniqueConstraint(fields=['patient','day','time_slot'], name = "unique_appointment_patient")
+            models.UniqueConstraint(
+                fields=["doctor", "day", "time_slot"], name="unique_appointment_doctor"
+            ),
+            models.UniqueConstraint(
+                fields=["patient", "day", "time_slot"],
+                name="unique_appointment_patient",
+            ),
         ]
-        

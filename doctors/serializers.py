@@ -29,10 +29,10 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
-    # Handle both User and DoctorProfile instances
         if isinstance(instance, DoctorProfile):
             user = instance.user
             return {
+                "id": instance.id,
                 "email": user.email,
                 "phone": user.phone,
                 "firstname": instance.firstname,
@@ -43,13 +43,16 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             }
         return super().to_representation(instance)
 
-    def validate_password(self,password):
-        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$'
-        if re.fullmatch(pattern,password):
+    def validate_password(self, password):
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
+        if re.fullmatch(pattern, password):
             return password
-        raise ValidationError({
-            "message" : "Password must contain Atleast 1 Uppercase character , 1 lowercase character , 1 digit and 1 special character"
-        })
+        raise ValidationError(
+            {
+                "message": "Password must contain Atleast 1 Uppercase character , 1 lowercase character , 1 digit and 1 special character"
+            }
+        )
+
     def create(self, validated_data):
         firstname = validated_data.pop("firstname")
         lastname = validated_data.pop("lastname")
@@ -72,37 +75,36 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class DoctorProfileRetrieveSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only = True)
-    username = serializers.CharField(write_only=True, required=False)
-    email = serializers.EmailField(write_only=True, required=False)
-    phone = serializers.CharField(write_only=True, required=False)
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = DoctorProfile
         fields = "__all__"
-        extra_kwargs = {
-            'user': {'read_only': True}
-        }
+        extra_kwargs = {"user": {"read_only": True}}
+
 
 class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorProfile
-        fields = ['firstname','lastname','sex','specialty','degree']
-        
+        fields = ["firstname", "lastname", "sex", "specialty", "degree"]
+
 
 class DoctorAvalibilityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorAvailibility
-        fields = '__all__'
+        fields = "__all__"
+
 
 class DoctorAvalibilityUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorAvailibility
-        fields = '__all__'
-        read_only_fields = ['doctor','days_of_week']
+        fields = "__all__"
+        read_only_fields = ["doctor", "days_of_week"]
+
 
 class AddBlockedSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockedSlot
-        fields = ['blocked_date', 'start_time', 'end_time']
-    
+        fields = ["blocked_date", "start_time", "end_time"]

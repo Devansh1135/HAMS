@@ -7,7 +7,9 @@ from django.db.models import constants
 
 
 class DoctorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="doctor_profile"
+    )
     firstname = models.CharField(max_length=20)
     lastname = models.CharField(max_length=20)
     sex = models.CharField(choices=[("M", "male"), ("F", "female")], max_length=10)
@@ -33,7 +35,9 @@ class DoctorAvailibility(models.Model):
         (5, "Saturday"),
         (6, "Sunday"),
     ]
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='availability')
+    doctor = models.ForeignKey(
+        DoctorProfile, on_delete=models.CASCADE, related_name="availability"
+    )
     days_of_week = models.IntegerField(choices=days)
     time_in = models.TimeField()
     time_out = models.TimeField()
@@ -46,8 +50,11 @@ class DoctorAvailibility(models.Model):
             )
         ]
 
+
 class BlockedSlot(models.Model):
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name="blocked_slots")
+    doctor = models.ForeignKey(
+        DoctorProfile, on_delete=models.CASCADE, related_name="blocked_slots"
+    )
     blocked_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()

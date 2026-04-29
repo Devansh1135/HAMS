@@ -15,7 +15,9 @@ class PatientSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     sex = serializers.CharField(write_only=True)
     DOB = serializers.DateField(write_only=True)
-    weight = serializers.IntegerField(write_only=True, validators = [MinValueValidator(1)])
+    weight = serializers.IntegerField(
+        write_only=True, validators=[MinValueValidator(1)]
+    )
 
     class Meta:
         model = User
@@ -27,17 +29,17 @@ class PatientSignupSerializer(serializers.ModelSerializer):
             "sex",
             "DOB",
             "weight",
-            
         ]
 
-    def validate_password(self,password):
-        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$'
-        if re.fullmatch(pattern,password):
+    def validate_password(self, password):
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
+        if re.fullmatch(pattern, password):
             return password
-        raise ValidationError({
-            "message" : "Password must contain Atleast 1 Uppercase character , 1 lowercase character , 1 digit and 1 special character"
-        })
-    
+        raise ValidationError(
+            {
+                "message": "Password must contain Atleast 1 Uppercase character , 1 lowercase character , 1 digit and 1 special character"
+            }
+        )
 
     def create(self, validated_data):
         # pop fields for profile
@@ -58,10 +60,11 @@ class PatientSignupSerializer(serializers.ModelSerializer):
         PatientProfile.objects.create(user=user, sex=sex, weight=weight, DOB=DOB)
         return user
 
+
 class PatientProfileSerializer(serializers.ModelSerializer):
-    
+
     user = UserSerializer()
+
     class Meta:
         model = PatientProfile
-        fields = '__all__'
-
+        fields = "__all__"
