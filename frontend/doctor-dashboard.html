@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard — HAMS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <span class="brand">HAMS — Doctor</span>
+    <div class="nav-links">
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-appointments">My Appointments</button>
+      <button class="tab-btn" data-tab="tab-availability">Availability</button>
+      <button class="tab-btn" data-tab="tab-blocked">Blocked Slots</button>
+      <button class="tab-btn" data-tab="tab-profile">My Profile</button>
+    </div>
+
+    <!-- ==================== My Appointments ==================== -->
+    <div id="tab-appointments" class="tab-panel active">
+      <div class="card">
+        <h2>Appointments For Me</h2>
+        <div id="apptMsg" class="msg"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Patient ID</th>
+              <th>Day</th>
+              <th>Time Slot</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="apptBody"></tbody>
+        </table>
+        <p id="apptEmpty" class="text-muted text-center mt-8 hidden">No appointments found.</p>
+      </div>
+    </div>
+
+    <!-- ==================== Availability ==================== -->
+    <div id="tab-availability" class="tab-panel">
+      <!-- Add form -->
+      <div class="card">
+        <h2>Add Availability</h2>
+        <div id="availAddMsg" class="msg"></div>
+        <form id="addAvailForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="avDay">Day of Week</label>
+              <select id="avDay" required>
+                <option value="0">Monday</option>
+                <option value="1">Tuesday</option>
+                <option value="2">Wednesday</option>
+                <option value="3">Thursday</option>
+                <option value="4">Friday</option>
+                <option value="5">Saturday</option>
+                <option value="6">Sunday</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="avSlotDur">Slot Duration (min)</label>
+              <input type="number" id="avSlotDur" min="5" value="30" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="avTimeIn">Time In</label>
+              <input type="time" id="avTimeIn" required />
+            </div>
+            <div class="form-group">
+              <label for="avTimeOut">Time Out</label>
+              <input type="time" id="avTimeOut" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+
+      <!-- List -->
+      <div class="card">
+        <h2>Current Availability</h2>
+        <div id="availMsg" class="msg"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Day</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Slot Duration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="availBody"></tbody>
+        </table>
+        <p id="availEmpty" class="text-muted text-center mt-8 hidden">No availability set.</p>
+      </div>
+
+      <!-- Edit modal (inline) -->
+      <div id="editAvailSection" class="card hidden">
+        <h2>Edit Availability</h2>
+        <div id="editAvailMsg" class="msg"></div>
+        <form id="editAvailForm">
+          <input type="hidden" id="editAvailId" />
+          <div class="form-group">
+            <label>Day</label>
+            <input type="text" id="editAvailDay" disabled />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editTimeIn">Time In</label>
+              <input type="time" id="editTimeIn" required />
+            </div>
+            <div class="form-group">
+              <label for="editTimeOut">Time Out</label>
+              <input type="time" id="editTimeOut" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editSlotDur">Slot Duration (min)</label>
+            <input type="number" id="editSlotDur" min="5" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('editAvailSection').classList.add('hidden')">Cancel</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== Blocked Slots ==================== -->
+    <div id="tab-blocked" class="tab-panel">
+      <!-- Add form -->
+      <div class="card">
+        <h2>Add Blocked Slot</h2>
+        <div id="blockAddMsg" class="msg"></div>
+        <form id="addBlockForm">
+          <div class="form-group">
+            <label for="blockDate">Date</label>
+            <input type="date" id="blockDate" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="blockStart">Start Time</label>
+              <input type="time" id="blockStart" required />
+            </div>
+            <div class="form-group">
+              <label for="blockEnd">End Time</label>
+              <input type="time" id="blockEnd" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Block</button>
+        </form>
+      </div>
+
+      <!-- List -->
+      <div class="card">
+        <h2>Current Blocked Slots</h2>
+        <div id="blockMsg" class="msg"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="blockBody"></tbody>
+        </table>
+        <p id="blockEmpty" class="text-muted text-center mt-8 hidden">No blocked slots.</p>
+      </div>
+    </div>
+
+    <!-- ==================== Profile ==================== -->
+    <div id="tab-profile" class="tab-panel">
+      <div class="card">
+        <h2>My Profile</h2>
+        <div id="profileMsg" class="msg"></div>
+        <form id="profileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dFirstname">First Name</label>
+              <input type="text" id="dFirstname" required />
+            </div>
+            <div class="form-group">
+              <label for="dLastname">Last Name</label>
+              <input type="text" id="dLastname" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dSex">Sex</label>
+              <select id="dSex">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dSpecialty">Specialty</label>
+              <input type="text" id="dSpecialty" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dDegree">Degree</label>
+            <input type="text" id="dDegree" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // ===== Auth guard =====
+    requireAuth();
+
+    const DOC_ID = localStorage.getItem("doctor_profile_id");
+
+    // ===== Tab switching =====
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ==================== Appointments ====================
+    async function loadAppointments() {
+      const tbody = document.getElementById("apptBody");
+      const empty = document.getElementById("apptEmpty");
+      tbody.innerHTML = "";
+      try {
+        const res = await apiFetch("/appointments/");
+        if (!res.ok) return;
+        const data = await res.json();
+        const results = data.results || data;
+        if (results.length === 0) { empty.classList.remove("hidden"); return; }
+        empty.classList.add("hidden");
+        results.forEach((a) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${a.id}</td><td>${a.patient}</td><td>${a.day}</td><td>${a.time_slot}</td><td>${a.status}</td><td>${new Date(a.created_at).toLocaleString()}</td>`;
+          tbody.appendChild(tr);
+        });
+      } catch {}
+    }
+    loadAppointments();
+
+    // ==================== Availability ====================
+    async function loadAvailability() {
+      if (!DOC_ID) return;
+      const tbody = document.getElementById("availBody");
+      const empty = document.getElementById("availEmpty");
+      tbody.innerHTML = "";
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/availibility/`);
+        if (res.status === 404) { empty.classList.remove("hidden"); return; }
+        if (!res.ok) return;
+        const data = await res.json();
+        const results = data.results || data;
+        if (results.length === 0) { empty.classList.remove("hidden"); return; }
+        empty.classList.add("hidden");
+        results.forEach((av) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${av.id}</td>
+            <td>${DAY_NAMES[av.days_of_week] || av.days_of_week}</td>
+            <td>${av.time_in}</td>
+            <td>${av.time_out}</td>
+            <td>${av.slot_duration} min</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick='openEditAvail(${JSON.stringify(av)})'>Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAvail(${av.id})">Delete</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch {}
+    }
+    loadAvailability();
+
+    // Add availability
+    document.getElementById("addAvailForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("availAddMsg");
+      msg.className = "msg";
+      const body = {
+        days_of_week: parseInt(document.getElementById("avDay").value),
+        time_in: document.getElementById("avTimeIn").value,
+        time_out: document.getElementById("avTimeOut").value,
+        slot_duration: parseInt(document.getElementById("avSlotDur").value),
+      };
+      try {
+        const res = await apiFetch(`/doctors/me/availibility/`, { method: "POST", body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok || res.status === 201) {
+          showMsg(msg, "Availability added.", "success");
+          loadAvailability();
+          e.target.reset();
+        } else {
+          showMsg(msg, JSON.stringify(data), "error");
+        }
+      } catch { showMsg(msg, "Network error.", "error"); }
+    });
+
+    // Edit availability
+    function openEditAvail(av) {
+      document.getElementById("editAvailSection").classList.remove("hidden");
+      document.getElementById("editAvailId").value = av.id;
+      document.getElementById("editAvailDay").value = DAY_NAMES[av.days_of_week] || av.days_of_week;
+      // Strip seconds from time strings for input[type=time]
+      document.getElementById("editTimeIn").value = av.time_in.substring(0, 5);
+      document.getElementById("editTimeOut").value = av.time_out.substring(0, 5);
+      document.getElementById("editSlotDur").value = av.slot_duration;
+    }
+
+    document.getElementById("editAvailForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("editAvailMsg");
+      msg.className = "msg";
+      const availId = document.getElementById("editAvailId").value;
+      const body = {
+        time_in: document.getElementById("editTimeIn").value,
+        time_out: document.getElementById("editTimeOut").value,
+        slot_duration: parseInt(document.getElementById("editSlotDur").value),
+      };
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/availibility/${availId}/`, { method: "PUT", body: JSON.stringify(body) });
+        if (res.ok) {
+          showMsg(msg, "Updated.", "success");
+          loadAvailability();
+          document.getElementById("editAvailSection").classList.add("hidden");
+        } else {
+          const data = await res.json();
+          showMsg(msg, JSON.stringify(data), "error");
+        }
+      } catch { showMsg(msg, "Network error.", "error"); }
+    });
+
+    // Delete availability
+    async function deleteAvail(availId) {
+      if (!confirm("Delete this availability?")) return;
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/availibility/${availId}/`, { method: "DELETE" });
+        if (res.ok || res.status === 204) {
+          loadAvailability();
+        } else {
+          alert("Failed to delete.");
+        }
+      } catch { alert("Network error."); }
+    }
+
+    // ==================== Blocked Slots ====================
+    async function loadBlocked() {
+      if (!DOC_ID) return;
+      const tbody = document.getElementById("blockBody");
+      const empty = document.getElementById("blockEmpty");
+      tbody.innerHTML = "";
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/blocked/`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const results = data.results || data;
+        if (results.length === 0) { empty.classList.remove("hidden"); return; }
+        empty.classList.add("hidden");
+        results.forEach((b) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${b.id}</td>
+            <td>${b.blocked_date}</td>
+            <td>${b.start_time}</td>
+            <td>${b.end_time}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteBlocked(${b.id})">Unblock</button></td>`;
+          tbody.appendChild(tr);
+        });
+      } catch {}
+    }
+    loadBlocked();
+
+    // Add blocked slot
+    document.getElementById("addBlockForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("blockAddMsg");
+      msg.className = "msg";
+      const body = {
+        blocked_date: document.getElementById("blockDate").value, // YYYY-MM-DD
+        start_time: document.getElementById("blockStart").value,
+        end_time: document.getElementById("blockEnd").value,
+      };
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/blocked/`, { method: "POST", body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok || res.status === 201) {
+          showMsg(msg, "Slot blocked.", "success");
+          loadBlocked();
+          e.target.reset();
+        } else {
+          showMsg(msg, JSON.stringify(data), "error");
+        }
+      } catch { showMsg(msg, "Network error.", "error"); }
+    });
+
+    // Delete blocked slot
+    async function deleteBlocked(slotId) {
+      if (!confirm("Unblock this slot?")) return;
+      try {
+        const res = await apiFetch(`/doctors/${DOC_ID}/blocked/${slotId}/`, { method: "DELETE" });
+        if (res.ok || res.status === 204) {
+          loadBlocked();
+        } else {
+          alert("Failed to unblock.");
+        }
+      } catch { alert("Network error."); }
+    }
+
+    // ==================== Profile ====================
+    async function loadProfile() {
+      if (!DOC_ID) return;
+      try {
+        // Use the retrieve endpoint (public GET)
+        const res = await apiFetch(`/doctors/${DOC_ID}/`);
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById("dFirstname").value = data.firstname || "";
+        document.getElementById("dLastname").value = data.lastname || "";
+        document.getElementById("dSex").value = data.sex || "M";
+        document.getElementById("dSpecialty").value = data.specialty || "";
+        document.getElementById("dDegree").value = data.degree || "";
+      } catch {}
+    }
+    loadProfile();
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("profileMsg");
+      msg.className = "msg";
+      const body = {
+        firstname: document.getElementById("dFirstname").value.trim(),
+        lastname: document.getElementById("dLastname").value.trim(),
+        sex: document.getElementById("dSex").value,
+        specialty: document.getElementById("dSpecialty").value.trim(),
+        degree: document.getElementById("dDegree").value.trim(),
+      };
+      try {
+        const res = await apiFetch("/doctors/me/", { method: "PUT", body: JSON.stringify(body) });
+        if (res.ok) {
+          showMsg(msg, "Profile updated.", "success");
+        } else {
+          const data = await res.json();
+          showMsg(msg, JSON.stringify(data), "error");
+        }
+      } catch { showMsg(msg, "Network error.", "error"); }
+    });
+  </script>
+</body>
+</html>

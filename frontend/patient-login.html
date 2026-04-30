@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Login — HAMS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="index.html">HAMS</a>
+    <div class="nav-links">
+      <a href="patient-signup.html">Sign Up</a>
+    </div>
+  </nav>
+
+  <div class="container-narrow" style="margin-top:40px;">
+    <div class="card">
+      <h2>Patient Login</h2>
+      <div id="msg" class="msg"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+      </form>
+      <p class="text-center mt-16 text-muted">Don't have an account? <a href="patient-signup.html">Sign Up</a></p>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.className = "msg";
+
+      const body = {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setTokens(data.access, data.refresh);
+          localStorage.setItem("user_role", "patient");
+          window.location.href = "patient-dashboard.html";
+        } else {
+          showMsg(msg, data.detail || "Invalid credentials.", "error");
+        }
+      } catch (err) {
+        showMsg(msg, "Network error. Is the server running?", "error");
+      }
+    });
+  </script>
+</body>
+</html>

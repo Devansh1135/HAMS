@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Login — HAMS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="index.html">HAMS</a>
+  </nav>
+
+  <div class="container-narrow" style="margin-top:40px;">
+    <div class="card">
+      <h2>Doctor Login</h2>
+      <div id="msg" class="msg"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.className = "msg";
+
+      const body = {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setTokens(data.access, data.refresh);
+          localStorage.setItem("user_role", "doctor");
+
+          // Resolve doctor profile id: decode JWT to get user_id, then search doctors list
+          const payload = decodeJWT(data.access);
+          const userId = payload ? payload.user_id : null;
+          if (userId) {
+            const listRes = await fetch(`${API_BASE}/doctors/`, {
+              headers: { "Authorization": `Bearer ${data.access}` },
+            });
+            if (listRes.ok) {
+              const listData = await listRes.json();
+              const doctors = listData.results || listData;
+              // Match doctor by email (the email we just logged in with)
+              const me = doctors.find((d) => d.email === body.email);
+              if (me) {
+                localStorage.setItem("doctor_profile_id", me.id);
+              }
+            }
+          }
+          window.location.href = "doctor-dashboard.html";
+        } else {
+          showMsg(msg, data.detail || "Invalid credentials.", "error");
+        }
+      } catch (err) {
+        showMsg(msg, "Network error. Is the server running?", "error");
+      }
+    });
+  </script>
+</body>
+</html>

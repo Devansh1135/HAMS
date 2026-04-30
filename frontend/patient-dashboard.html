@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard — HAMS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <nav class="topnav">
+    <span class="brand">HAMS — Patient</span>
+    <div class="nav-links">
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-appointments">My Appointments</button>
+      <button class="tab-btn" data-tab="tab-book">Book Appointment</button>
+      <button class="tab-btn" data-tab="tab-profile">My Profile</button>
+    </div>
+
+    <!-- ==================== My Appointments ==================== -->
+    <div id="tab-appointments" class="tab-panel active">
+      <div class="card">
+        <h2>My Appointments</h2>
+        <div id="apptMsg" class="msg"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Doctor</th>
+              <th>Day</th>
+              <th>Time Slot</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="apptBody"></tbody>
+        </table>
+        <p id="apptEmpty" class="text-muted text-center mt-8 hidden">No appointments found.</p>
+      </div>
+    </div>
+
+    <!-- ==================== Book Appointment ==================== -->
+    <div id="tab-book" class="tab-panel">
+      <div class="card">
+        <h2>Browse Doctors</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Specialty</th>
+              <th>Degree</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="doctorBody"></tbody>
+        </table>
+        <p id="docEmpty" class="text-muted text-center mt-8 hidden">No doctors found.</p>
+      </div>
+
+      <!-- Slot selection (shown after clicking "Select") -->
+      <div id="slotSection" class="card hidden">
+        <h2>Select Date &amp; Time Slot</h2>
+        <div id="bookMsg" class="msg"></div>
+        <p class="mb-16">Doctor: <strong id="selectedDocName"></strong> (ID: <span id="selectedDocId"></span>)</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="apptDate">Date</label>
+            <input type="date" id="apptDate" />
+          </div>
+          <div class="form-group">
+            <label for="slotSelect">Available Slot</label>
+            <select id="slotSelect" disabled>
+              <option value="">— pick a date first —</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary mt-8" id="bookBtn" disabled>Book Appointment</button>
+      </div>
+    </div>
+
+    <!-- ==================== My Profile ==================== -->
+    <div id="tab-profile" class="tab-panel">
+      <div class="card">
+        <h2>My Profile</h2>
+        <div id="profileMsg" class="msg"></div>
+        <form id="profileForm">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="pUsername" disabled />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="pEmail" disabled />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pSex">Sex</label>
+              <select id="pSex">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pWeight">Weight (kg)</label>
+              <input type="number" id="pWeight" min="1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pDOB">Date of Birth</label>
+            <input type="date" id="pDOB" />
+          </div>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // ===== Auth guard =====
+    requireAuth();
+
+    // ===== Tab switching =====
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ==================== Appointments ====================
+    async function loadAppointments() {
+      const tbody = document.getElementById("apptBody");
+      const empty = document.getElementById("apptEmpty");
+      tbody.innerHTML = "";
+      try {
+        const res = await apiFetch("/appointments/");
+        if (!res.ok) { showMsg(document.getElementById("apptMsg"), "Failed to load appointments.", "error"); return; }
+        const data = await res.json();
+        const results = data.results || data;
+        if (results.length === 0) { empty.classList.remove("hidden"); return; }
+        empty.classList.add("hidden");
+        results.forEach((a) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${a.id}</td><td>${a.doctor.username}</td><td>${a.day}</td><td>${a.time_slot}</td><td>${a.status}</td>`;
+          tbody.appendChild(tr);
+        });
+      } catch { showMsg(document.getElementById("apptMsg"), "Network error.", "error"); }
+    }
+    loadAppointments();
+
+    // ==================== Doctors list ====================
+    async function loadDoctors() {
+      const tbody = document.getElementById("doctorBody");
+      const empty = document.getElementById("docEmpty");
+      tbody.innerHTML = "";
+      try {
+        const res = await fetch(`${API_BASE}/doctors/`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const results = data.results || data;
+        if (results.length === 0) { empty.classList.remove("hidden"); return; }
+        empty.classList.add("hidden");
+        results.forEach((d) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${d.id}</td><td>${d.firstname} ${d.lastname}</td><td>${d.specialty}</td><td>${d.degree}</td>
+            <td><button class="btn btn-primary btn-sm" onclick="selectDoctor(${d.id}, '${d.firstname} ${d.lastname}')">Select</button></td>`;
+          tbody.appendChild(tr);
+        });
+      } catch { }
+    }
+    loadDoctors();
+
+    // ==================== Slot selection ====================
+    let selectedDoctorId = null;
+
+    function selectDoctor(id, name) {
+      selectedDoctorId = id;
+      document.getElementById("selectedDocId").textContent = id;
+      document.getElementById("selectedDocName").textContent = name;
+      document.getElementById("slotSection").classList.remove("hidden");
+      document.getElementById("slotSelect").innerHTML = '<option value="">— pick a date first —</option>';
+      document.getElementById("slotSelect").disabled = true;
+      document.getElementById("bookBtn").disabled = true;
+      document.getElementById("apptDate").value = "";
+      document.getElementById("bookMsg").className = "msg";
+    }
+
+    document.getElementById("apptDate").addEventListener("change", async () => {
+      const dateInput = document.getElementById("apptDate").value; // YYYY-MM-DD
+      if (!dateInput) return;
+      const parts = dateInput.split("-");
+      const ddmmyyyy = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+      const sel = document.getElementById("slotSelect");
+      sel.innerHTML = '<option value="">Loading…</option>';
+      sel.disabled = true;
+
+      try {
+        const res = await apiFetch(`/doctors/${selectedDoctorId}/slots/?date=${ddmmyyyy}`);
+        const data = await res.json();
+        if (!res.ok) {
+          sel.innerHTML = `<option value="">Error: ${data.error || "unknown"}</option>`;
+          return;
+        }
+        const slots = data.available_slots || [];
+        if (slots.length === 0) {
+          sel.innerHTML = '<option value="">No slots available</option>';
+          return;
+        }
+        sel.innerHTML = '<option value="">— select a slot —</option>';
+        slots.forEach((s) => {
+          const opt = document.createElement("option");
+          opt.value = s.start_time;
+          opt.textContent = `${s.start_time} – ${s.end_time}`;
+          sel.appendChild(opt);
+        });
+        sel.disabled = false;
+      } catch {
+        sel.innerHTML = '<option value="">Network error</option>';
+      }
+    });
+
+    document.getElementById("slotSelect").addEventListener("change", () => {
+      document.getElementById("bookBtn").disabled = !document.getElementById("slotSelect").value;
+    });
+
+    document.getElementById("bookBtn").addEventListener("click", async () => {
+      const msg = document.getElementById("bookMsg");
+      msg.className = "msg";
+      const dateInput = document.getElementById("apptDate").value;
+      const parts = dateInput.split("-");
+      const ddmmyyyy = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const timeSlot = document.getElementById("slotSelect").value;
+
+      const body = {
+        doctor: selectedDoctorId,
+        status: "booked",
+        time_slot: timeSlot,
+        day: ddmmyyyy,
+      };
+
+      try {
+        const res = await apiFetch("/appointments/", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg(msg, "Appointment booked successfully!", "success");
+          loadAppointments();
+          // Reset
+          document.getElementById("slotSelect").innerHTML = '<option value="">— pick a date first —</option>';
+          document.getElementById("slotSelect").disabled = true;
+          document.getElementById("bookBtn").disabled = true;
+          document.getElementById("apptDate").value = "";
+        } else {
+          const errText = typeof data === "string" ? data : (data.detail || data.error || JSON.stringify(data));
+          showMsg(msg, errText, "error");
+        }
+      } catch {
+        showMsg(msg, "Network error.", "error");
+      }
+    });
+
+    // ==================== Profile ====================
+    async function loadProfile() {
+      try {
+        const res = await apiFetch("/auth/me/");
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById("pUsername").value = data.user?.username || "";
+        document.getElementById("pEmail").value = data.user?.email || "";
+        document.getElementById("pSex").value = data.sex || "male";
+        document.getElementById("pWeight").value = data.weight || "";
+        document.getElementById("pDOB").value = data.DOB || "";
+      } catch { }
+    }
+    loadProfile();
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("profileMsg");
+      msg.className = "msg";
+      const body = {
+        sex: document.getElementById("pSex").value,
+        weight: parseInt(document.getElementById("pWeight").value),
+        DOB: document.getElementById("pDOB").value,
+      };
+      try {
+        const res = await apiFetch("/auth/me/", {
+          method: "PUT",
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          showMsg(msg, "Profile updated.", "success");
+        } else {
+          const data = await res.json();
+          showMsg(msg, JSON.stringify(data), "error");
+        }
+      } catch {
+        showMsg(msg, "Network error.", "error");
+      }
+    });
+  </script>
+</body>
+
+</html>
