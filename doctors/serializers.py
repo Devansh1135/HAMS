@@ -92,6 +92,15 @@ class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class DoctorAvalibilityCreateSerializer(serializers.ModelSerializer):
+    doctor = serializers.PrimaryKeyRelatedField(read_only = True)
+    class Meta:
+        model = DoctorAvailibility
+        fields = "__all__"
+    
+    
+
+
+class DoctorAvalibilityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorAvailibility
         fields = "__all__"
@@ -107,4 +116,4 @@ class DoctorAvalibilityUpdateSerializer(serializers.ModelSerializer):
 class AddBlockedSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockedSlot
-        fields = ["blocked_date", "start_time", "end_time"]
+        fields = ["id","blocked_date", "start_time", "end_time"]

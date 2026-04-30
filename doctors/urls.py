@@ -9,10 +9,11 @@ urlpatterns = [
         views.DoctorProfileRetrieveDeleteView.as_view(),
         name="doctor profile",
     ),
+    path('me/availibility/', views.DoctorAvailibilityCreateView.as_view(),name = "add-avalibility"),
     path(
         "<int:pk>/availibility/",
-        views.DoctorAvalibilityCreateRetrieveView.as_view(),
-        name="doctor availibility",
+        views.DoctorAvalibilityListView.as_view(),
+        name="list-availibility",
     ),
     path(
         "<int:pk>/availibility/<int:avail_id>/",

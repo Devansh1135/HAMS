@@ -12,6 +12,7 @@ from rest_framework_simplejwt.token_blacklist.models import (
 from rest_framework import generics
 from .models import PatientProfile
 from common.paginators import BasePagination
+from common.permissions import IsPatient
 
 # Create your views here.
 
@@ -49,21 +50,25 @@ class PasswordChangeView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = request.user
         tokens = OutstandingToken.objects.filter(user=user)
         for token in tokens:
             BlacklistedToken.objects.get_or_create(token=token)
+        return Response(
+            {"message": "Logged out successfully"},
+            status=200
+        )
 
 
-class GetUserProfile(generics.RetrieveAPIView):
+class GetUserProfile(generics.RetrieveUpdateAPIView):
     queryset = PatientProfile.objects.all()
     serializer_class = PatientProfileSerializer
 
     def get_permissions(self):
-        return [IsAuthenticated()]
+        return [IsPatient()]
 
     def get_object(self):
         return PatientProfile.objects.get(user=self.request.user)

@@ -7,6 +7,7 @@ from .serializers import (
     DoctorProfileRetrieveSerializer,
     DoctorProfileUpdateSerializer,
     DoctorAvalibilityCreateSerializer,
+    DoctorAvalibilityListSerializer,
     DoctorAvalibilityUpdateSerializer,
     AddBlockedSlotSerializer,
 )
@@ -72,17 +73,20 @@ class DoctorProfileUpdateView(generics.UpdateAPIView):
         return self.request.user.doctor_profile
 
 
-class DoctorAvalibilityCreateRetrieveView(generics.ListCreateAPIView):
-    serializer_class = DoctorAvalibilityCreateSerializer
+class DoctorAvalibilityListView(generics.ListAPIView):
+    serializer_class = DoctorAvalibilityListSerializer
     pagination_class = BasePagination
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [IsDoctor()]
-        return [AllowAny()]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return get_list_or_404(DoctorAvailibility, doctor=self.kwargs["pk"])
+
+class DoctorAvailibilityCreateView(generics.CreateAPIView):
+    serializer_class = DoctorAvalibilityCreateSerializer
+    permission_classes = [IsDoctor]
+    def perform_create(self, serializer):
+        doctor = self.request.user.doctor_profile
+        serializer.save(doctor = doctor)
 
 
 class DoctorAvailibilityUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -90,7 +94,7 @@ class DoctorAvailibilityUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
 
     def get_permissions(self):
         if self.request.method == "GET":
-            return [AllowAny()]
+            return [IsAuthenticated()]
         return [IsDoctor()]
 
     def get_object(self):

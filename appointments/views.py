@@ -7,7 +7,7 @@ from .serializers import (
     AppointmentRetrieveUpdateDeleteSerializer,
 )
 from datetime import datetime
-from common.permissions import IsDoctor
+from common.permissions import IsDoctor, IsPatient
 from django.shortcuts import get_object_or_404
 from common.paginators import BasePagination
 from .tasks import send_appointment_confirmation_mail
@@ -35,15 +35,12 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         patient = self.request.user.patient_profile
-        start = time.time()
+        # serializer.save(patient=patient)
         appointment = serializer.save(patient=patient)
-        print("SAVE DONE:", time.time() - start)
         send_appointment_confirmation_mail.delay(appointment.id)
-        print("TASK SENT:", time.time() - start)
 
 
 class AppointmentRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsDoctor]
+    permission_classes = [IsPatient,IsDoctor]
     serializer_class = AppointmentRetrieveUpdateDeleteSerializer
-    permission_classes = [IsDoctor]
     queryset = Appointment.objects.all()

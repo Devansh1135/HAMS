@@ -63,7 +63,9 @@ class PatientSignupSerializer(serializers.ModelSerializer):
 
 class PatientProfileSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer()
+    user = UserSerializer(read_only = True)
+    weight = serializers.IntegerField(validators=[MinValueValidator(1)]
+    )
 
     class Meta:
         model = PatientProfile

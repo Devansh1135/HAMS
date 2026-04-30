@@ -8,4 +8,5 @@ urlpatterns = [
         views.AppointmentRetrieveUpdateDeleteView.as_view(),
         name="retrieve-update-delete-appointment",
     ),
+    
 ]

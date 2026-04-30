@@ -1,0 +1,568 @@
+
+Signup API:
+curl --location 'http://127.0.0.1:8000/auth/signup/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username" : "Devansh3",
+    "password" : "Devansh@3",
+    "email" : "devanshjagatiya1135@gmail.com",
+    "sex" : "M",
+    "DOB" : "2005-03-11",
+    "weight" : 80
+
+}'
+response :
+
+{
+    "username": "Devansh4",
+    "email": "devansh4@example.com",
+    "phone": ""
+}
+
+
+Login API:
+curl --location 'http://127.0.0.1:8000/auth/login/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "password" : "Doctor1",
+    "email" : "Doctor1@example.com"
+
+}'
+
+response :
+access and refresh tokens
+
+Logout API :
+
+curl --location --request POST 'http://127.0.0.1:8000/auth/logout/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MzcxNjUwLCJpYXQiOjE3NzczNzA3NTAsImp0aSI6IjU4ZGU2NjFkNzQzMTRhMTA5M2JkMmUxODA1NjEyNDViIiwidXNlcl9pZCI6IjMyIn0.ysAVnyfqhOWmMa8WXPoZJXUljUeOIeUT6b3xdfBMvrw' \
+--data ''
+
+response :
+{
+    "message": "Logged out successfully"
+}
+
+
+Refresh Token API:
+
+curl --location 'http://127.0.0.1:8000/auth/token/refresh/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzQ1NzQwNywiaWF0IjoxNzc3MzcxMDA3LCJqdGkiOiIzOGFhNzIyNjRkMzA0M2MyODU1MDc3YmIyODJiNDdiNCIsInVzZXJfaWQiOiIzMiJ9.cM6p8jU2ob982uYdLLIkK4rsd5P5I6eKlpzZRxodseA' \
+--data '{
+    "refresh" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzQ1NzQzOCwiaWF0IjoxNzc3MzcxMDM4LCJqdGkiOiIxMTkyNWJhMGQyNDU0M2RmOTM3OWQ2YWMxNDU0NjQ3YSIsInVzZXJfaWQiOiI0MiJ9.iZ7feFRx0V9td8YW7WPyIBR8lIwZrMIoZI5UdB7rBjA"
+}'
+
+response :
+new access token
+
+Add doctor API :
+
+(Admin user only)
+curl --location 'http://127.0.0.1:8000/doctors/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTI4MTA0LCJpYXQiOjE3Nzc1MjcyMDQsImp0aSI6ImUzZGE1NzFjNTk1NDQ5Y2I4NTliZGMxYmNhMDhhZDdmIiwidXNlcl9pZCI6IjEifQ.ZiBCHNSXsQSgl6-vNcavS578pU0Hseb3bgQg8zYiFio' \
+--data-raw '{
+    "username": "Doctor5",
+    "password" : "Doctor@5",
+    "email" : "Doctor5@example.com",
+    "sex" : "M",
+    "firstname" : "3 Victor",
+    "lastname" : "Von 3 Doom",
+    "specialty": "Sorcerer",
+    "degree": "MD"
+
+
+}'
+
+response:
+
+{
+    "username": "Doctor5",
+    "email": "Doctor5@example.com",
+    "phone": ""
+}
+
+Get Doctors list API :
+
+curl --location 'http://127.0.0.1:8000/doctors/'
+
+response :
+
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 2,
+            "email": "Doctor3@example.com",
+            "phone": "",
+            "firstname": "Victor",
+            "lastname": "Von Doom",
+            "sex": "M",
+            "specialty": "Sorcerer",
+            "degree": "MD"
+        },
+        {
+            "id": 1,
+            "email": "Doctor1@example.com",
+            "phone": "",
+            "firstname": "Victor",
+            "lastname": "Von Doom",
+            "sex": "F",
+            "specialty": "Sorcery",
+            "degree": "MD , MBBS"
+        },
+        {
+            "id": 4,
+            "email": "Doctor5@example.com",
+            "phone": "",
+            "firstname": "3 Victor",
+            "lastname": "Von 3 Doom",
+            "sex": "M",
+            "specialty": "Sorcerer",
+            "degree": "MD"
+        }
+    ]
+}
+
+Retreive Doctor API : 
+
+(Doctor and Admin only)
+curl --location 'http://127.0.0.1:8000/doctors/4/'
+
+response :
+{
+    "id": 4,
+    "user": {
+        "id": 8,
+        "username": "Doctor5",
+        "email": "Doctor5@example.com"
+    },
+    "firstname": "3 Victor",
+    "lastname": "Von 3 Doom",
+    "sex": "M",
+    "created_at": "2026-04-30T05:34:04.201603Z",
+    "specialty": "Sorcerer",
+    "degree": "MD"
+}
+
+Delete Doctor :
+ (Admin Only)
+
+curl --location --request DELETE 'http://127.0.0.1:8000/doctors/4/'
+
+response :
+{"message" : "Doctor deleted Succesfully"}
+
+Update Doctor : 
+(Doctor only)
+
+curl --location --request PUT 'http://127.0.0.1:8000/doctors/me/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTI2MzE5LCJpYXQiOjE3Nzc1MjU0MTksImp0aSI6IjJhNDk5YWY3MzMxNTQyM2M5NmY2ZDljNzI5NWU5NmY5IiwidXNlcl9pZCI6IjMifQ.MCYFO5wiGZln-JJwyPwkS519Mk2C905wfvnpUsO9yQA' \
+--data '{
+    "sex" : "F",
+    "firstname" : "Victor",
+    "lastname" : "Von Doom",
+    "specialty": "Sorcery",
+    "degree": "MD , MBBS"
+}'
+
+response :
+
+{
+    "firstname": "Victor",
+    "lastname": "Von Doom",
+    "sex": "F",
+    "specialty": "Sorcery",
+    "degree": "MD , MBBS"
+}
+
+Add Doctor Availibility : 
+(Doctor only)
+
+(Doctor id here should be extracted from the logged in Doctor)
+
+curl --location 'http://127.0.0.1:8000/doctors/me/availibility/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTI5ODg2LCJpYXQiOjE3Nzc1Mjg5ODYsImp0aSI6IjU1MDI3MjExNmZjMTQ0OGFiYmYzNTAwMzkwNGIzMjBmIiwidXNlcl9pZCI6IjMifQ.HpG5wXBO5xRErPi9D40aZYMUtviX2E-drn21mWNVsow' \
+--data '{
+    "days_of_week" : 2,
+    "time_in" : "08:15",
+    "time_out" : "17:45",
+    "slot_duration" : 30    
+}'
+
+response:
+
+{
+    "id": 5,
+    "doctor": 1,
+    "days_of_week": 2,
+    "time_in": "08:15:00",
+    "time_out": "17:45:00",
+    "slot_duration": 30
+}
+
+Get Doctor Availibility :
+
+(All authenticated users)
+
+curl --location 'http://127.0.0.1:8000/doctors/1/availibility/'
+
+response :
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "days_of_week": 1,
+            "time_in": "08:15:00",
+            "time_out": "17:45:00",
+            "slot_duration": 30,
+            "doctor": 1
+        },
+        {
+            "id": 5,
+            "days_of_week": 2,
+            "time_in": "08:15:00",
+            "time_out": "17:45:00",
+            "slot_duration": 30,
+            "doctor": 1
+        }
+    ]
+}
+
+Retrieve Doctor Availibility:
+
+(All Authenticated USers)
+
+curl --location 'http://127.0.0.1:8000/doctors/1/availibility/5/'
+
+response :
+
+{
+    "id": 5,
+    "days_of_week": 2,
+    "time_in": "08:15:00",
+    "time_out": "17:45:00",
+    "slot_duration": 30,
+    "doctor": 1
+}
+
+Update Doctor Availibility :
+
+(Doctor only)
+
+curl --location --request PUT 'http://127.0.0.1:8000/doctors/1/availibility/5/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTI5ODg2LCJpYXQiOjE3Nzc1Mjg5ODYsImp0aSI6IjU1MDI3MjExNmZjMTQ0OGFiYmYzNTAwMzkwNGIzMjBmIiwidXNlcl9pZCI6IjMifQ.HpG5wXBO5xRErPi9D40aZYMUtviX2E-drn21mWNVsow' \
+--data '{
+    
+    "time_in": "08:15:00",
+    "time_out": "17:45:00",
+    "slot_duration": 30
+
+}'
+
+response :
+
+{
+    "id": 5,
+    "days_of_week": 2,
+    "time_in": "08:15:00",
+    "time_out": "17:45:00",
+    "slot_duration": 30,
+    "doctor": 1
+}
+
+Delete Doctor Availibility:
+
+(Doctor only)
+
+curl --location --request DELETE 'http://127.0.0.1:8000/doctors/1/availibility/1/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMxMDU1LCJpYXQiOjE3Nzc1MzAxNTUsImp0aSI6ImRiNTc4Yzg2ZDNhODQ0ODhiMGRkN2U3ZjQxNjE4ZmVjIiwidXNlcl9pZCI6IjMifQ.0ZfMKTJJCThpw_RK8vvgIqgmKfRsaRIdddL5sVbE1Sc'
+
+response :
+
+204 no Content
+
+Get Doctor Slots :
+
+(All Authenticated Users)
+
+
+
+curl --location 'http://127.0.0.1:8000/doctors/1/slots/?date=01-05-2026' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMxMDU1LCJpYXQiOjE3Nzc1MzAxNTUsImp0aSI6ImRiNTc4Yzg2ZDNhODQ0ODhiMGRkN2U3ZjQxNjE4ZmVjIiwidXNlcl9pZCI6IjMifQ.0ZfMKTJJCThpw_RK8vvgIqgmKfRsaRIdddL5sVbE1Sc'
+
+response :
+
+{
+    "doctor_id": 1,
+    "date": "01-05-2026",
+    "available_slots": [
+        {
+            "start_time": "08:15:00",
+            "end_time": "08:45:00"
+        },
+        {
+            "start_time": "08:45:00",
+            "end_time": "09:15:00"
+        },
+        {
+            "start_time": "09:15:00",
+            "end_time": "09:45:00"
+        },
+        {
+            "start_time": "09:45:00",
+            "end_time": "10:15:00"
+        },
+        {
+            "start_time": "10:15:00",
+            "end_time": "10:45:00"
+        },
+        {
+            "start_time": "10:45:00",
+            "end_time": "11:15:00"
+        },
+        {
+            "start_time": "11:15:00",
+            "end_time": "11:45:00"
+        },
+        {
+            "start_time": "11:45:00",
+            "end_time": "12:15:00"
+        },
+        {
+            "start_time": "12:15:00",
+            "end_time": "12:45:00"
+        },
+        {
+            "start_time": "12:45:00",
+            "end_time": "13:15:00"
+        },
+        {
+            "start_time": "13:15:00",
+            "end_time": "13:45:00"
+        },
+        {
+            "start_time": "13:45:00",
+            "end_time": "14:15:00"
+        },
+        {
+            "start_time": "14:15:00",
+            "end_time": "14:45:00"
+        },
+        {
+            "start_time": "14:45:00",
+            "end_time": "15:15:00"
+        },
+        {
+            "start_time": "15:15:00",
+            "end_time": "15:45:00"
+        },
+        {
+            "start_time": "15:45:00",
+            "end_time": "16:15:00"
+        },
+        {
+            "start_time": "16:15:00",
+            "end_time": "16:45:00"
+        },
+        {
+            "start_time": "16:45:00",
+            "end_time": "17:15:00"
+        },
+        {
+            "start_time": "17:15:00",
+            "end_time": "17:45:00"
+        }
+    ]
+}
+
+this API will be called when user selects a date while adding an appointment
+the reponse of this API should be displayed as a dropdown of time slots as [value of start time - value of end time] and when the user selects a time slot and clicks on add appointment the add appointment API (written below) will be called and the start time of that slot and date from the query param will be sent as request.
+
+Get Doctors blocked Slots :
+
+(All authenticated users)
+
+curl --location 'http://127.0.0.1:8000/doctors/1/blocked/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMxNTcwLCJpYXQiOjE3Nzc1MzA2NzAsImp0aSI6ImUwYmRiNGUzNzU5ZjQ4Njg5OWUzNmY3NDU3MjNlOWU1IiwidXNlcl9pZCI6IjMifQ.zOnwa42_4DPnH6nC8smJI__qmbSTrKGuvHbXoVMi0EA'
+
+response : 
+
+[
+    {
+        "id" : 1
+        "blocked_date": "2026-05-01",
+        "start_time": "10:00:00",
+        "end_time": "12:30:00"
+    }
+]
+
+Add Blocked Slots :
+
+(Doctor only)
+
+curl --location 'http://127.0.0.1:8000/doctors/1/blocked/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMxNTcwLCJpYXQiOjE3Nzc1MzA2NzAsImp0aSI6ImUwYmRiNGUzNzU5ZjQ4Njg5OWUzNmY3NDU3MjNlOWU1IiwidXNlcl9pZCI6IjMifQ.zOnwa42_4DPnH6nC8smJI__qmbSTrKGuvHbXoVMi0EA' \
+--data '{
+    "blocked_date": "2026-05-01",
+    "start_time":"10:00",
+    "end_time":"12:30"
+}'
+
+response:
+
+{
+    
+    "blocked_date": "2026-05-01",
+    "start_time": "10:00:00",
+    "end_time": "12:30:00"
+}
+
+
+Delete blocked Slots :
+
+(Doctor only)
+
+curl --location --request DELETE 'http://127.0.0.1:8000/doctors/1/blocked/1/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMxNzUwLCJpYXQiOjE3Nzc1MzA4NTAsImp0aSI6IjNhN2U4ZjlkYzUzNjQ4Zjk4YzRlMjEzMjdhNTQ3MTk1IiwidXNlcl9pZCI6IjMifQ.hvuCcPXqkEhz9_-9de0MmIWTyNfGTXDa4UEOc6qkWok'
+
+Response :
+
+{
+    "message": "Slot succesfully unblocked"
+}
+
+Add Appointment :
+
+curl --location 'http://127.0.0.1:8000/appointments/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMyMDk2LCJpYXQiOjE3Nzc1MzExOTYsImp0aSI6Ijk0Y2Q4ZjFiMmY4YzQ3MmQ5YmFiMDNjNWRiNGQ4MWRiIiwidXNlcl9pZCI6IjcifQ.RYWJSrtyoQsUMvU6o_eEJgDo4OZ8-gvLZXdEMlES8ao' \
+--data '{
+    "doctor": 1,
+    "status": "booked",
+    "time_slot": "11:40",
+    "day": "27-06-2026"
+}'
+
+response :
+
+{
+    "id": 6,
+    "day": "27-06-2026",
+    "patient": 3,
+    "status": "booked",
+    "time_slot": "11:40:00",
+    "created_at": "2026-04-30T06:42:22.676761Z",
+    "doctor": 1
+}
+
+Get Appointments list :
+
+curl --location 'http://127.0.0.1:8000/appointments' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMyMjk1LCJpYXQiOjE3Nzc1MzEzOTUsImp0aSI6IjY4NzVjOGY1ODQwMDQ4MTBhZTc5YTgwMjJmZjQxODg3IiwidXNlcl9pZCI6IjcifQ.dPQxGXvQH3hlXTaWnAdPXj75GunYWkm3L0Bf9s_qLJc'
+
+response : 
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 5,
+            "day": "27-06-2026",
+            "patient": 3,
+            "status": "booked",
+            "time_slot": "11:20:00",
+            "created_at": "2026-04-30T06:40:36.700360Z",
+            "doctor": 1
+        },
+        {
+            "id": 6,
+            "day": "27-06-2026",
+            "patient": 3,
+            "status": "booked",
+            "time_slot": "11:40:00",
+            "created_at": "2026-04-30T06:42:22.676761Z",
+            "doctor": 1
+        }
+    ]
+}
+
+Retrieve Appointment :
+
+curl --location 'http://127.0.0.1:8000/appointments/5/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMyNDI2LCJpYXQiOjE3Nzc1MzE1MjYsImp0aSI6IjM1YTkyMTEwMzJjODRlMTJiMjQ0ZGE1ODczNzM1ZTZjIiwidXNlcl9pZCI6IjcifQ.23IoASMVF7lMA9bV0gVCZ9jmw-tOSYhrwRAYfqkwX90'
+
+Response:
+
+{
+    "id": 5,
+    "status": "booked",
+    "day": "2026-06-27",
+    "time_slot": "11:20:00",
+    "created_at": "2026-04-30T06:40:36.700360Z",
+    "patient": 3,
+    "doctor": 1
+}
+
+Get Patient profile : 
+
+(Patient only)
+
+curl --location 'http://127.0.0.1:8000/auth/me/' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTI1NTMwLCJpYXQiOjE3Nzc1MjQ2MzAsImp0aSI6Ijk1ZjRiZTQyYTEwMzQ4YTViZmJjOWFjNzJhNDVhYTU2IiwidXNlcl9pZCI6IjQifQ.38IJMFOGI3Rr-sbc7p2piQ_sbDhvDwJ7SiNdz0inBB0'
+
+{
+    "id": 2,
+    "user": {
+        "id": 4,
+        "username": "Devansh3",
+        "email": "devanshjagatiya1135@gmail.com"
+    },
+    "sex": "female",
+    "weight": 80,
+    "created_at": "2026-04-29T06:04:56.002503Z",
+    "DOB": "2005-03-11"
+}
+
+Update patient profile :
+
+(Patient Only)
+
+curl --location --request PUT 'http://127.0.0.1:8000/auth/me/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3NTMyOTY1LCJpYXQiOjE3Nzc1MzIwNjUsImp0aSI6ImE0NTViN2Q0OWVmMzQwZWFiN2Y4ZmM1MmM2N2RiMmExIiwidXNlcl9pZCI6IjcifQ.EmWz6uv2Be11CjMHsjjX5G2gmfysx9D-ONLpK-R77gs' \
+--data '{
+    
+    "sex" : "male",
+    "DOB" : "2005-03-11",
+    "weight" : 65
+
+}'
+
+response :
+
+{
+    "id": 3,
+    "user": {
+        "id": 7,
+        "username": "Devansh4",
+        "email": "devansh4@example.com"
+    },
+    "weight": 65,
+    "sex": "male",
+    "created_at": "2026-04-30T05:14:42.340219Z",
+    "DOB": "2005-03-11"
+}
