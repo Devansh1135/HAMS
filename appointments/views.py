@@ -35,9 +35,9 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         patient = self.request.user.patient_profile
-        # serializer.save(patient=patient)
-        appointment = serializer.save(patient=patient)
-        send_appointment_confirmation_mail.delay(appointment.id)
+        serializer.save(patient=patient)
+        # appointment = serializer.save(patient=patient)
+        # send_appointment_confirmation_mail.delay(appointment.id)
 
 
 class AppointmentRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
